@@ -15,7 +15,7 @@ class Node:
         self.avails = 1
 
     def run(self):
-        for _ in range(1000):
+        for _ in range(2000):
             result, leaf = self.explore(self)
             
             leaf.wins += result
@@ -25,7 +25,6 @@ class Node:
 
         max_score = -1
         best_move = None
-        print(len(self.children))
         for child in self.children:
             ratio = child.wins / child.visits
             if ratio > max_score:
@@ -47,8 +46,8 @@ class Node:
         return self.explore(newnode)
     
     def evaluate(self, node):
-        p1_points = node.state.get_points(1)
-        p2_points = node.state.get_points(2)
+        p1_points = node.state.get_points(self.get_me())
+        p2_points = node.state.get_points(util.other(self.get_me()))
 
         return 1 if p1_points - p2_points > 0 else 0
 
@@ -72,16 +71,21 @@ class Node:
         st = self.state
 
         player = st.whose_turn()
-        player = util.other(player)
 
-        if player == 1:
+        if player != self.get_me():
             st = self.state.make_assumption()
         
         moves = st.moves()
         
         for move in moves:
             new_state = st.next(move)
-            child_node = Node(new_state, self, move, [], player)
+            child_node = Node(new_state, self, move, [], util.other(player))
             self.children.append(child_node)
+
+    def get_me(self):
+        node = self
+        while node.parent:
+            node = node.parent
+        return node.player
 
             
