@@ -53,7 +53,8 @@ class Node:
 
     def expand(self):
         moves = self.state.moves()
-        player = 1 - player # Flip 1 to 0 or vice versa
+        player = self.state.whose_turn()
+        player = 1 if player == 2 else 2
         
         for move in moves:
             new_state = self.state.next(move)
