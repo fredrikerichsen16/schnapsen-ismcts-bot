@@ -1,24 +1,39 @@
 import math
+from api import util
 
 class Node:
 
-    def __init__(self, state, parent, children, move, player):
-        self.state = state       # State of current node
-        self.parent = parent     # Parent node
-        self.children = children # Child nodes
-        self.move = move         # Move that got us from parent node to this node
-        self.player = player     # Player whose turn it is to make a move from this node
+    def __init__(self, state, parent, move, children=[], player=1):
+        self.state = state.clone(player) # State of current node
+        self.parent = parent             # Parent node
+        self.move = move                 # Move that got us from parent node to this node
+        self.children = children         # Child nodes
+        self.player = player             # Player whose turn it is to make a move from this node
 
-        self.wins = 0
-        self.visits = 0
+        self.wins = 1
+        self.visits = 1
         self.avails = 1
 
     def run(self):
-        for i in range(50):
-            self.state = self.state.make_assumption()
+        for _ in range(1000):
+            result, leaf = self.explore(self)
             
-            for _ in range(1000):
-                self.explore(self)
+            leaf.wins += result
+            while leaf.parent:
+                leaf = leaf.parent
+                leaf.wins += result
+
+        max_score = -1
+        best_move = None
+        print(len(self.children))
+        for child in self.children:
+            ratio = child.wins / child.visits
+            if ratio > max_score:
+                max_score = ratio
+                best_move = child.move
+        
+        return best_move
+
 
     def explore(self, node):
         if not node.children:
@@ -26,16 +41,16 @@ class Node:
 
         newnode = self.select_child(node)
 
-        if(newnode.get_phase() == 2):
-            return self.evaluate(newnode)
+        if(newnode.state.finished() or newnode.state.get_phase() == 2):
+            return (self.evaluate(newnode), newnode)
 
-        self.wins += self.explore(newnode)
+        return self.explore(newnode)
     
     def evaluate(self, node):
-        p1_points = node.state.get_pending_points(1)
-        p2_points = node.state.get_pending_points(2)
+        p1_points = node.state.get_points(1)
+        p2_points = node.state.get_points(2)
 
-        return p1_points - p2_points > 0
+        return 1 if p1_points - p2_points > 0 else 0
 
     def select_child(self, node, constant=0.7):
         """
@@ -49,15 +64,24 @@ class Node:
         for child in node.children:
             child.avails += 1
 
+        s.visits += 1
+
         return s
 
     def expand(self):
-        moves = self.state.moves()
-        player = self.state.whose_turn()
-        player = 1 if player == 2 else 2
+        st = self.state
+
+        player = st.whose_turn()
+        player = util.other(player)
+
+        if player == 1:
+            st = self.state.make_assumption()
+        
+        moves = st.moves()
         
         for move in moves:
-            new_state = self.state.next(move)
-            child_node = Node(new_state, self, None, move, player)
+            new_state = st.next(move)
+            child_node = Node(new_state, self, move, [], player)
             self.children.append(child_node)
+
             
