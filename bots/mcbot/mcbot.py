@@ -4,12 +4,6 @@ from .Node import Node
 import random
 
 class Bot:
-
-	# How many samples to take per move
-	__num_samples = -1
-	# How deep to sample
-	__depth = -1
-
 	__root = None
 
 	__max_depth = 8
@@ -24,19 +18,11 @@ class Bot:
 		if state.get_phase() == 1:
 			self.__root = Node(state, None, None, [], player)
 			move = self.__root.run()
+
 			return move
 		else:
-			# All legal moves
-			# moves = state.moves()
-
-			# Return a random choice
-			# return random.choice(moves)
-			
-			# Do minimax
-			# pass
-
 			val, move = self.value(state)
-			
+
 			return move
 
 	def value(self, state, alpha=float('-inf'), beta=float('inf'), depth = 0):
@@ -48,7 +34,6 @@ class Bot:
 		:param int depth: How deep we are in the tree
 		:return val, move: the value of the state, and the best move.
 		"""
-
 		if state.finished():
 			winner, points = state.winner()
 			return (points, None) if winner == 1 else (-points, None)
@@ -65,7 +50,6 @@ class Bot:
 			random.shuffle(moves)
 
 		for move in moves:
-
 			next_state = state.next(move)
 			value, _ = self.value(next_state, alpha, beta, depth + 1)
 
