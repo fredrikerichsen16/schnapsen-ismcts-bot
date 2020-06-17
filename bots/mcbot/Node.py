@@ -35,15 +35,16 @@ class Node:
         p1_points = node.state.get_pending_points(1)
         p2_points = node.state.get_pending_points(2)
 
-        return p1 - p2 > 0
+        return p1_points - p2_points > 0
 
-    def select_child(self, node, exploration = 0.7):
-		""" Use the UCB1 formula to select a child node, filtered by the given list of legal moves.
-			exploration is a constant balancing between exploitation and exploration, with default value 0.7 (approximately sqrt(2) / 2)
+    def select_child(self, node, constant=0.7):
+        """
+        Use the UCB1 formula to select a child node, filtered by the given list of legal moves.
+		exploration is a constant balancing between exploitation and exploration, with default value 0.7 (approximately sqrt(2) / 2)
+
 		"""
-
         # Get the child with the highest UCB score
-        s = max(node.children, key = lambda n: float(n.wins)/float(n.visits) + 0.7 * math.sqrt(log(n.avails)/float(n.visits)))
+        s = max(node.children, key = lambda n: float(n.wins)/float(n.visits) + constant * math.sqrt(math.log(n.avails)/float(n.visits)))
 
         for child in node.children:
             child.avails += 1
