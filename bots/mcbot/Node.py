@@ -43,7 +43,7 @@ class Node:
 		"""
 
         # Get the child with the highest UCB score
-        s = max(node.children, key = lambda n: float(n.wins)/float(n.visits) + 0.7 * sqrt(log(n.avails)/float(n.visits)))
+        s = max(node.children, key = lambda n: float(n.wins)/float(n.visits) + 0.7 * math.sqrt(log(n.avails)/float(n.visits)))
 
         for child in node.children:
             child.avails += 1
