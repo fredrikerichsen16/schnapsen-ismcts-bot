@@ -50,7 +50,7 @@ class Bot:
 				if score > best_score:
 					best_score = score
 					best_move = move
-
+		#print(state.get_prev_trick())
 		return best_move # Return the best scoring move
 
 	def evaluate(self,

@@ -1,7 +1,5 @@
 # Import the API objects
 from api import State, util
-from mctspy.tree.nodes import TwoPlayersGameMonteCarloTreeSearchNode
-from mctspy.tree.search import MonteCarloTreeSearch
 from .Node import Node
 import random
 
@@ -16,39 +14,13 @@ class Bot:
 
 	def get_move(self, state):
 		if state.get_phase() == 1:
-			initial_board_state = state.make_assumption()
-			root = TwoPlayersGameMonteCarloTreeSearchNode(initial_board_state)
-			mcts = MonteCarloTreeSearch(root)
-			best_child = mcts.best_action(5000)
-			#best_next_state = best_child.state
-			#print('------------------------------------------------------------------------')
-			#print(best_next_state)
-			#print('------------------------------------------------------------------------')
-			#for move in state.moves():
-			#	if state.next(move) == best_next_state:
-			#		best_move = move
-			#self.print_children_values(best_child)
-			#print(type(best_child._results[1]))
-			#print(best_child._results[-1])
-			#print(type(best_child._number_of_visits))
-			#print(best_child._number_of_visits)
-			#print("%f, %f") % (best_child._results[1], best_child._number_of_visits)
-			best_move = best_child.move_played
-			#print(best_move)
-			return best_move
+			move = ISMCTS(state, 1000)
+
+			return move
 		else:
 			val, move = self.value(state)
 
 			return move
-
-	def print_children_values(self, best_child):
-		for child in best_child.parent.children:
-			if child == best_child:
-				print("------------------------------------------------")
-			string = "W:{:.2f}; L:{:.2f}; V:{:.2f}".format(child._results[1], child._results[-1], child._number_of_visits)
-			print(string)
-			if child == best_child:
-				print("------------------------------------------------")
 
 	def value(self, state, alpha=float('-inf'), beta=float('inf'), depth = 0):
 		"""
