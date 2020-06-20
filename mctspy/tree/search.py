@@ -25,9 +25,8 @@ class MonteCarloTreeSearch(object):
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
-        # to select best child go for only
-        bc = self.root.best_child(c_param=0.)
-        return bc
+        # to select best child go for only exploitation
+        return self.root.best_child(c_param=0.)
 
     def _tree_policy(self):
         """
