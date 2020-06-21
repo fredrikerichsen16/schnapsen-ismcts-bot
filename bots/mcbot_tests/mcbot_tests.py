@@ -21,7 +21,7 @@ class Bot:
 			root = TwoPlayersGameMonteCarloTreeSearchNode(initial_board_state)
 			mcts = MonteCarloTreeSearch(root)
 			start_time = time.time()
-			best_child = mcts.best_action(6500)
+			best_child = mcts.best_action(5000)
 			end_time = time.time()
 			print(end_time-start_time)
 			#self.print_children_values(best_child)
