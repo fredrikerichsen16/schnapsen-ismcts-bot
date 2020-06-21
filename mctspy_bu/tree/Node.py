@@ -1,5 +1,5 @@
 import numpy as np
-from math import *
+from math import sqrt, log
 import random
 from collections import defaultdict
 from api import util
@@ -69,4 +69,5 @@ class Node():
         return self.children[np.argmax(choices_weights)]
 
     def __repr__(self):
-        return "M:{:s}; W:{:.2f}; L:{:.2f}; V:{:.2f}".format(str(self.move_played), self.outcome[1], self.outcome[-1], self.number_of_visits)
+        string = "M:{:s}; W:{:.2f}; L:{:.2f}; V:{:.2f}".format(str(self.move_played), self.outcome[1], self.outcome[-1], self.number_of_visits)
+        return string

@@ -16,6 +16,12 @@ class MonteCarloTreeSearch():
 		# to select the best child we go only for exploitation, so value 0 for exploration parameter
 		best_child = self.root.best_child(exploration = 0.)
 		best_move = best_child.move_played
+		for child in best_child.parent.children:
+			if child == best_child:
+				print("------------------------------------------------")
+			print(child)
+			if child == best_child:
+				print("------------------------------------------------")
 		#self.print_brothers_of(best_child)
 		return best_move
 
@@ -31,10 +37,5 @@ class MonteCarloTreeSearch():
 				current_node = current_node.best_child()
 		return current_node
 
-	def print_brothers_of(self, best_child):
-		for child in best_child.parent.children:
-			if child == best_child:
-				print("------------------------------------------------")
-			print(child)
-			if child == best_child:
-				print("------------------------------------------------")
+	#def print_brothers_of(self, best_child):
+		
