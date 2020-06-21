@@ -5,8 +5,9 @@ class MonteCarloTreeSearch():
 
 	def best_move(self, simulations_number):
 		"""
-		simulations_number is type int
-		It represents the number of simulations performed to get the best move
+		Returns the best move
+		:param int simulations_number: how many times we want simulations to be performed
+		:return best_move: the best move after performing the simulations
 		"""
 		for _ in range(0, simulations_number):
 			node_selected = self.node_selection() # SELECTION & EXPANSION
@@ -14,8 +15,9 @@ class MonteCarloTreeSearch():
 			node_selected.backpropagate(game_result) #BACKPROPAGATION
 		# to select the best child we go only for exploitation, so value 0 for exploration parameter
 		best_child = self.root.best_child(exploration = 0.)
-		self.print_brothers_of(best_child)
-		return best_child.move_played
+		best_move = best_child.move_played
+		#self.print_brothers_of(best_child)
+		return best_move
 
 	def node_selection(self):
 		"""
