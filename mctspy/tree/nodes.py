@@ -1,121 +1,72 @@
 import numpy as np
+from math import *
+import random
 from collections import defaultdict
-from abc import ABC, abstractmethod
-from api import util, State
-
-
-class MonteCarloTreeSearchNode(ABC):
+from api import util
+class Node():
 
     def __init__(self, state, move_played=None, parent=None):
-        """
-        Parameters
-        ----------
-        state : mctspy.games.common.TwoPlayersAbstractGameState
-        parent : MonteCarloTreeSearchNode
-        """
         self.state = state
         self.move_played = move_played
         self.parent = parent
         self.children = []
+        self.number_of_visits = 0.
+        self.outcome = defaultdict(int)
+        self.untried_moves = None
 
     @property
-    @abstractmethod
-    def untried_actions(self):
-        """
-
-        Returns
-        -------
-        list of mctspy.games.common.AbstractGameAction
-
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def q(self):
-        pass
-
-    @property
-    @abstractmethod
-    def n(self):
-        pass
-
-    @abstractmethod
-    def expand(self):
-        pass
-
-    @abstractmethod
-    def is_terminal_node(self):
-        pass
-
-    @abstractmethod
-    def rollout(self):
-        pass
-
-    @abstractmethod
-    def backpropagate(self, reward):
-        pass
-
-    def is_fully_expanded(self):
-        return len(self.untried_actions) == 0
-
-    def best_child(self, c_param=1.4):
-        choices_weights = [
-            (c.q / c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n))
-            for c in self.children
-        ]
-        return self.children[np.argmax(choices_weights)]
-
-    def rollout_policy(self, possible_moves):        
-        return possible_moves[np.random.randint(len(possible_moves))]
-
-
-class TwoPlayersGameMonteCarloTreeSearchNode(MonteCarloTreeSearchNode):
-
-    def __init__(self, state, move_played=None, parent=None):
-        super().__init__(state, move_played, parent)
-        self._number_of_visits = 0.
-        self._results = defaultdict(int)
-        self._untried_actions = None
-
-    @property
-    def untried_actions(self):
-        if self._untried_actions is None:
-            self._untried_actions = self.state.moves()
-        return self._untried_actions
+    def get_untried_moves(self):
+        if self.untried_moves is None:
+            self.untried_moves = self.state.moves()
+        return self.untried_moves
 
     @property
     def q(self):
-        wins = self._results[self.parent.state.whose_turn()]
-        loses = self._results[util.other(self.parent.state.whose_turn())]
+        wins = self.outcome[self.parent.state.whose_turn()]
+        loses = self.outcome[util.other(self.parent.state.whose_turn())]
         return wins - loses
 
     @property
     def n(self):
-        return self._number_of_visits
+        return self.number_of_visits
 
     def expand(self):
-        action = self.untried_actions.pop()
-        next_state = self.state.next(action)
-        child_node = TwoPlayersGameMonteCarloTreeSearchNode(next_state, action, self)
+        move = self.untried_moves.pop()
+        next_state = self.state.next(move)
+        child_node = Node(next_state, move, self)
         self.children.append(child_node)
         return child_node
 
     def is_terminal_node(self):
         return self.state.finished()
+    
+    def is_fully_expanded(self):
+        return len(self.get_untried_moves) == 0
 
-    def rollout(self):
-        current_rollout_state = self.state
-        while not current_rollout_state.finished():
-            possible_moves = current_rollout_state.moves()
-            action = self.rollout_policy(possible_moves)
-            current_rollout_state = current_rollout_state.next(action)
-        #print(util.difference_points(current_rollout_state, current_rollout_state.whose_turn()))
-        winner, points = current_rollout_state.winner()
+    def simulation_policy(self, possible_moves):        
+        return random.choice(possible_moves)
+
+    def simulate(self):
+        current_simulation_state = self.state
+        while not current_simulation_state.finished():
+            possible_moves = current_simulation_state.moves()
+            move = self.simulation_policy(possible_moves)
+            current_simulation_state = current_simulation_state.next(move)
+        winner, points = current_simulation_state.winner()
         return 1 if winner == 1 else -1
 
     def backpropagate(self, result):
-        self._number_of_visits += 1.
-        self._results[result] += 1.
+        self.number_of_visits += 1.
+        self.outcome[result] += 1.
         if self.parent:
             self.parent.backpropagate(result)
+
+    def best_child(self, exploration=1.4):
+        choices_weights = [
+            (c.q / c.n) + exploration * sqrt((2 * log(self.n) / c.n))
+            for c in self.children
+        ]
+        return self.children[np.argmax(choices_weights)]
+
+    def __repr__(self):
+        return "M:{:s}; W:{:.2f}; L:{:.2f}; V:{:.2f}".format(str(self.move_played), self.outcome[1], self.outcome[-1], self.number_of_visits)
