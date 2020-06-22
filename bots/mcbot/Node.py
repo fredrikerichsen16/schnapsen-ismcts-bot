@@ -1,13 +1,15 @@
 import math
+import time
 from api import util
 
 class Node:
 
     def __init__(self, state, parent, move, children=[], player=1):
-        self.state = state.clone(player) # State of current node
-        self.parent = parent             # Parent node
-        self.move = move                 # Move that got us from parent node to this node
-        self.children = children         # Child nodes
+        self.og_state = state     # State of current node
+        self.state = state
+        self.parent = parent      # Parent node
+        self.move = move          # Move that got us from parent node to this node
+        self.children = children  # Child nodes
         self.player = player             # Player whose turn it is to make a move from this node
 
         self.wins = 1
@@ -15,17 +17,21 @@ class Node:
         self.avails = 1
 
     def run(self):
-        for _ in range(2000):
-            result, leaf = self.explore(self)
-            
-            leaf.wins += result
-            while leaf.parent:
-                leaf = leaf.parent
+        for i in range(20):
+            self.state = self.og_state.make_assumption()
+
+            for _ in range(250):
+                result, leaf = self.explore(self)
+                
                 leaf.wins += result
+                while leaf.parent:
+                    leaf = leaf.parent
+                    leaf.wins += result
 
         max_score = -1
         best_move = None
         for child in self.children:
+            print(child)
             ratio = child.wins / child.visits
             if ratio > max_score:
                 max_score = ratio
@@ -58,7 +64,7 @@ class Node:
 
 		"""
         # Get the child with the highest UCB score
-        s = max(node.children, key = lambda n: float(n.wins)/float(n.visits) + constant * math.sqrt(math.log(n.avails)/float(n.visits)))
+        s = max(node.children, key = lambda n: float(n.wins)/float(n.visits) + constant * math.sqrt(math.log(node.visits)/float(n.visits)))
 
         for child in node.children:
             child.avails += 1
@@ -71,10 +77,6 @@ class Node:
         st = self.state
 
         player = st.whose_turn()
-
-        if player != self.get_me():
-            st = self.state.make_assumption()
-        
         moves = st.moves()
         
         for move in moves:
@@ -87,5 +89,8 @@ class Node:
         while node.parent:
             node = node.parent
         return node.player
+
+    def __repr__(self):
+        return "[M:%s W/V/A: %4i/%4i/%4i]" % (self.move, self.wins, self.visits, self.avails)
 
             
