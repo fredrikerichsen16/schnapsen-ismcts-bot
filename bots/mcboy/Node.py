@@ -21,13 +21,13 @@ class Node():
         return self.untried_moves
 
     @property
-    def q(self):
+    def value(self):
         wins = self.outcome[self.parent.state.whose_turn()]
         loses = self.outcome[util.other(self.parent.state.whose_turn())]
         return wins - loses
 
     @property
-    def n(self):
+    def visits(self):
         return self.number_of_visits
 
     def expand(self):
@@ -62,11 +62,11 @@ class Node():
             self.parent.backpropagate(result)
 
     def best_child(self, exploration=1.4):
-        choices_weights = [
-            (c.q / c.n) + exploration * sqrt((2 * log(self.n) / c.n))
-            for c in self.children
+        children_weights = [
+            (child.value / child.visits) + exploration * sqrt((2 * log(self.visits)) / child.visits)
+            for child in self.children
         ]
-        return self.children[np.argmax(choices_weights)]
+        return self.children[np.argmax(children_weights)]
 
     def __repr__(self):
-        return "M:{:s}; W:{:.2f}; L:{:.2f}; V:{:.2f}".format(str(self.move_played), self.outcome[1], self.outcome[-1], self.number_of_visits)
+        return "M:{:s}; W:{:.2f}; L:{:.2f}; V:{:.2f}".format(str(self.move_played), self.outcome[1], self.outcome[-1], self.visits)
