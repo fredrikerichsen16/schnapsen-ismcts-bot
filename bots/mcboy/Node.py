@@ -3,7 +3,7 @@ from math import sqrt, log
 import random
 from collections import defaultdict
 from api import util
-class Node():
+class Node:
 
     def __init__(self, state, move_played=None, parent=None):
         self.state = state

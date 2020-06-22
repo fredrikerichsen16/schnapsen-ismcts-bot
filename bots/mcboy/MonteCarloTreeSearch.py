@@ -1,4 +1,4 @@
-class MonteCarloTreeSearch():
+class MonteCarloTreeSearch:
 
 	def __init__(self, node):
 		self.root = node
