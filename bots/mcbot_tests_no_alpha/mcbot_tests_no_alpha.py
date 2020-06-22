@@ -23,6 +23,7 @@ class Bot:
 		mcts = MonteCarloTreeSearch(root)
 		best_child = mcts.best_action(6500)
 		best_move = best_child.move_played
+		self.print_children_values(best_child)
 		return best_move
 
 	def print_children_values(self, best_child):

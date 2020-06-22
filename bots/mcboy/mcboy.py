@@ -1,15 +1,13 @@
 # Import the API objects
 from api import State, util
-from mctspy.tree.nodes import Node
-from mctspy.tree.search import MonteCarloTreeSearch
-# from .Node import Node
+from .Node import Node
+from .MonteCarloTreeSearch import MonteCarloTreeSearch
 import random
 import time
 
 class Bot:
-	__root = None
-
-	__max_depth = 8
+	
+	__max_depth = 12
 	__randomize = True
 
 	def __init__(self):
@@ -21,9 +19,9 @@ class Bot:
 			root = Node(initial_board_state)
 			mcts = MonteCarloTreeSearch(root)
 			start_time = time.time()
-			best_move = mcts.best_move(5000)
+			best_move = mcts.best_move(10000)
 			end_time = time.time()
-			print(end_time-start_time)
+			#print(end_time - start_time)
 			return best_move
 		else:
 			val, move = self.value(state)
@@ -95,59 +93,3 @@ def heuristic(state):
 	:return: A heuristic evaluation for the given state (between -1.0 and 1.0)
 	"""
 	return util.ratio_points(state, 1) * 2.0 - 1.0, None
-
-def ISMCTS(rootstate, itermax, verbose = False):
-	""" Conduct an ISMCTS search for itermax iterations starting from rootstate.
-		Return the best move from the rootstate.
-	"""
-
-	rootnode = Node()
-	
-	for i in range(itermax):
-		node = rootnode
-		
-		# Determinize
-		sample_state = rootstate.make_assumption()
-		#sample_state = state.make_assumption()
-		
-		# Select
-		state = sample_state.clone()
-		while not state.finished()  and node.GetUntriedMoves(state.moves()) == []: # node is fully expanded and non-terminal
-			node = node.UCBSelectChild(state.moves())
-			state = state.next(node.move)
-
-		#print("SELECT")
-
-		# Expand
-		
-		if not state.finished(): # if we can expand (i.e. state/node is non-terminal)
-			untriedMoves = node.GetUntriedMoves(state.moves())
-			m = random.choice(untriedMoves) 
-			player = state.whose_turn()
-			state = state.next(m)
-			node = node.AddChild(m, player) # add child and descend tree
-		
-		#print("EXPAND")
-
-		state = sample_state.clone()
-		# Simulate
-		while not state.finished(): # while state is non-terminal
-			state = state.next(random.choice(state.moves()))
-
-		#print("SIMULATE")
-
-		#state = sample_state
-		# Backpropagatex
-		while node != None: # backpropagate from the expanded node and work back to the root node
-			node.Update(state)
-			node = node.parentNode
-		
-		#print("BACKPROP")
-
-	# Output some information about the tree - can be omitted
-	if (verbose): 
-		print(rootnode.TreeToString(0))
-	else: 
-		print(rootnode.ChildrenToString())
-
-	return max(rootnode.childNodes, key = lambda c: c.visits + c.avails + c.wins).move
