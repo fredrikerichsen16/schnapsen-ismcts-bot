@@ -1,5 +1,5 @@
 import numpy as np
-from math import *
+from math import sqrt, log
 import random
 from collections import defaultdict
 from api import util
