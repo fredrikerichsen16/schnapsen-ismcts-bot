@@ -16,8 +16,8 @@ class Bot:
 		player = state.whose_turn()
 
 		if state.get_phase() == 1:
-			self.__root = Node(state, None, None, [], player)
-			move = self.__root.run()
+			self.__root = Node(None, None, None, [], player)
+			move = self.__root.run(state)
 
 			return move
 		else:
