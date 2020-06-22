@@ -21,29 +21,36 @@ class Node():
         return self.untried_moves
 
     @property
-    def value(self):
-        wins = self.outcome[self.parent.state.whose_turn()]
-        loses = self.outcome[util.other(self.parent.state.whose_turn())]
-        return wins - loses
+    def wins(self):
+        return self.outcome[self.parent.state.whose_turn()]
 
     @property
     def visits(self):
         return self.number_of_visits
 
-    def expand(self):
+    @property
+    def is_terminal_node(self):
+        return self.state.finished()
+    
+    @property
+    def is_fully_expanded(self):
+        return len(self.get_untried_moves) == 0
+
+    def best_child(self, exploration=1.4): # Selection
+        children_weights = [
+            (child.wins / child.visits) + exploration * sqrt((2 * log(self.visits)) / child.visits)
+            for child in self.children
+        ]
+        return self.children[np.argmax(children_weights)]
+
+    def expand(self): # Expansion
         move = self.untried_moves.pop()
         next_state = self.state.next(move)
         child_node = Node(next_state, move, self)
         self.children.append(child_node)
         return child_node
 
-    def is_terminal_node(self):
-        return self.state.finished()
-    
-    def is_fully_expanded(self):
-        return len(self.get_untried_moves) == 0
-
-    def simulation_policy(self, possible_moves):        
+    def simulation_policy(self, possible_moves): # Simulation        
         return random.choice(possible_moves)
 
     def simulate(self):
@@ -55,18 +62,11 @@ class Node():
         winner, _ = current_simulation_state.winner()
         return 1 if winner == 1 else -1
 
-    def backpropagate(self, result):
+    def backpropagate(self, result): # Back-propagation
         self.number_of_visits += 1.
         self.outcome[result] += 1.
         if self.parent:
             self.parent.backpropagate(result)
-
-    def best_child(self, exploration=1.4):
-        children_weights = [
-            (child.value / child.visits) + exploration * sqrt((2 * log(self.visits)) / child.visits)
-            for child in self.children
-        ]
-        return self.children[np.argmax(children_weights)]
 
     def __repr__(self):
         return "M:{:s}; W:{:.2f}; L:{:.2f}; V:{:.2f}".format(str(self.move_played), self.outcome[1], self.outcome[-1], self.visits)
