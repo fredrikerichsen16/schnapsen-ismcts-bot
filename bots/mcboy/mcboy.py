@@ -24,8 +24,8 @@ class Bot:
 			print(end_time - start_time)
 			return best_move
 		else:
-			val, move = self.value(state)
-
+			_, move = self.value(state)
+			
 			return move
 
 	def value(self, state, alpha=float('-inf'), beta=float('inf'), depth = 0):
