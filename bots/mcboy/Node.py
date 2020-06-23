@@ -38,7 +38,7 @@ class Node:
     def is_fully_expanded(self):
         return len(self.get_untried_moves) == 0
 
-    def best_child(self, exploration=1.4): # Selection
+    def best_child(self, exploration=2.5): # Selection
         children_weights = [
             (child.value / child.visits) + exploration * sqrt((2 * log(self.visits)) / child.visits)
             for child in self.children

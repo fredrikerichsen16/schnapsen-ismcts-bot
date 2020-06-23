@@ -49,8 +49,6 @@ def run_tournament(options):
 
 			if winner is not None:
 				winner = p[winner - 1]
-				#print(winner)
-				#print(str(p))
 				wins[winner] += score
 			
 			winner = bots[winner]
@@ -68,7 +66,7 @@ def run_tournament(options):
 			playedgames += 1
 			print('Played {} out of {:.0f} games ({:.0f}%): {} \r'.format(playedgames, totalgames, playedgames/float(totalgames) * 100, wins))
 
-	file_name = str(botnames[0]) + " vs " + str(botnames[1]) + " for " + str(options.repeats) + " games.csv"
+	file_name = str(player1) + " vs " + str(player2) + " for " + str(options.repeats) + " games.csv"
 			
 	with open(file_name, mode='w') as out_file:
 		
