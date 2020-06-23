@@ -21,8 +21,10 @@ class Node:
         return self.untried_moves
 
     @property
-    def wins(self):
-        return self.outcome[self.parent.state.whose_turn()]
+    def value(self):
+        wins = self.outcome[self.parent.state.whose_turn()]
+        loses = self.outcome[util.other(self.parent.state.whose_turn())]
+        return wins - loses
 
     @property
     def visits(self):
@@ -38,7 +40,7 @@ class Node:
 
     def best_child(self, exploration=1.4): # Selection
         children_weights = [
-            (child.wins / child.visits) + exploration * sqrt((2 * log(self.visits)) / child.visits)
+            (child.value / child.visits) + exploration * sqrt((2 * log(self.visits)) / child.visits)
             for child in self.children
         ]
         return self.children[np.argmax(children_weights)]

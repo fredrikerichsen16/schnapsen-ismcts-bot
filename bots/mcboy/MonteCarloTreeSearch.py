@@ -28,7 +28,7 @@ class MonteCarloTreeSearch:
 			if not current_node.is_fully_expanded:
 				return current_node.expand() # EXPANSION
 			else:
-				current_node = current_node.best_child() # SELECTION
+				current_node = current_node.best_child() # EXPLORATION
 		return current_node
 
 	def print_brothers_of(self, best_child):
