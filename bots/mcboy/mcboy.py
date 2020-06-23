@@ -16,17 +16,15 @@ class Bot:
 	def get_move(self, state):
 		if state.get_phase() == 1:
 			initial_board_state = state.make_assumption()
-			root = Node(initial_board_state)
-			mcts = MonteCarloTreeSearch(root)
-			start_time = time.time()
-			best_move = mcts.best_move(10000)
-			end_time = time.time()
-			print(end_time - start_time)
-			return best_move
 		else:
-			_, move = self.value(state)
-			
-			return move
+			initial_board_state = state
+		root = Node(initial_board_state)
+		mcts = MonteCarloTreeSearch(root)
+		start_time = time.time()
+		best_move = mcts.best_move(5000)
+		end_time = time.time()
+		print(end_time - start_time)
+		return best_move
 
 	def value(self, state, alpha=float('-inf'), beta=float('inf'), depth = 0):
 		"""
