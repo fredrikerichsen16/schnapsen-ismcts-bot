@@ -27,7 +27,6 @@ class Bot:
 		best_move = mcts.best_move(5000)
 		end_time = time.time()
 		print(end_time - start_time)
-		
 		return best_move
 
 		#else: # MinMax /w Alpha-Beta

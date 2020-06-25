@@ -62,7 +62,7 @@ class Node:
             move = self.simulation_policy(possible_moves)
             current_simulation_state = current_simulation_state.next(move)
         winner, points = current_simulation_state.winner()
-        outcome = 1 if winner == 1 else -1
+        outcome = -1 if winner == 1 else 1
         return outcome, outcome * points
 
     def backpropagate(self, result, points): # Back-propagation
